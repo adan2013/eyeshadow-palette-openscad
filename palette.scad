@@ -1,9 +1,9 @@
 // Eyeshadow Palette Generator V20
 
 /*[Pans]*/
-// Number of pans in a row
-dimensionA = 3; // [1:1:6]
 // Number of pans in a column
+dimensionA = 3; // [1:1:6]
+// Number of pans in a row
 dimensionB = 2; // [1:1:6]
 // pan diameter in mm
 panDiameter = 26; // [20:1:40]
@@ -18,6 +18,8 @@ pushHoleDiameter = 3; // [3:1:6]
 /*[Spacing]*/
 cornerMargin = 3; // [2:1:10]
 panSpacing = 6; // [3:1:10]
+// extra milimeters added to the thickness of the base palette
+extraPaletteThickness = 2; // [0:1:10]
 
 /*[Hidden]*/
 rowCount = min(dimensionA, dimensionB);
@@ -39,7 +41,7 @@ pushHoleOffsetX = panRadius / -2;
 pushHoleOffsetY = 0;
 
 lidThickness = magnetHeight + magnetWallThickness;
-paletteThickness = panDepth + magnetHeight + magnetWallThickness;
+paletteThickness = panDepth + magnetHeight + magnetWallThickness + extraPaletteThickness;
 paletteWidth = (columnCount * panDiameter) + ((columnCount - 1) * panSpacing) + (2 * outerMargin);
 paletteLength = (rowCount * panDiameter) + ((rowCount - 1) * panSpacing) + (2 * outerMargin);
 
