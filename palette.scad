@@ -11,6 +11,8 @@ panDiameter = 26; // [20:1:40]
 panDepth = 3; // [3:1:6]
 
 /*[Magnets and push holes]*/
+// use pause feature to insert magnets during printing
+hiddenMagnets = true;
 magnetDiameter = 6; // [5:1:10]
 magnetHeight = 2; // [1:1:4]
 pushHoleDiameter = 3; // [3:1:6]
@@ -18,7 +20,7 @@ pushHoleDiameter = 3; // [3:1:6]
 /*[Spacing]*/
 cornerMargin = 3; // [2:1:10]
 panSpacing = 6; // [3:1:10]
-// extra milimeters added to the thickness of the base palette
+// extra milimeters added to the base palette thickness
 extraPaletteThickness = 2; // [0:1:10]
 
 /*[Hidden]*/
@@ -29,9 +31,10 @@ panRadius = panDiameter / 2;
 magnetRadius = magnetDiameter / 2;
 pushHoleRadius = pushHoleDiameter / 2;
 
-magnetWallThickness = 1;
+magnetBackWallThickness = 1;
+magnetFrontWallThickness = hiddenMagnets ? 1 : 0;
 railHeight = 1;
-railThickness = 1;
+railThickness = 2;
 railMagnetOffset = 6 + magnetRadius;
 
 outerMargin = magnetDiameter + cornerMargin;
@@ -40,15 +43,15 @@ magnetOffsetY = 0;
 pushHoleOffsetX = panRadius / -2;
 pushHoleOffsetY = 0;
 
-lidThickness = magnetHeight + magnetWallThickness;
-paletteThickness = panDepth + magnetHeight + magnetWallThickness + extraPaletteThickness;
-paletteWidth = (columnCount * panDiameter) + ((columnCount - 1) * panSpacing) + (2 * outerMargin);
-paletteLength = (rowCount * panDiameter) + ((rowCount - 1) * panSpacing) + (2 * outerMargin);
-
 epsilon = 0.01;
 gap = 0.2;
 lidPreviewGap = 5;
 smoothness = 100;
+
+lidThickness = magnetBackWallThickness + magnetHeight + magnetFrontWallThickness + 2 * gap;
+paletteThickness = panDepth + magnetFrontWallThickness + magnetHeight + magnetBackWallThickness + extraPaletteThickness + 2 * gap;
+paletteWidth = (columnCount * panDiameter) + ((columnCount - 1) * panSpacing) + (2 * outerMargin);
+paletteLength = (rowCount * panDiameter) + ((rowCount - 1) * panSpacing) + (2 * outerMargin);
 
 corner_magnet_center_offset = magnetRadius + cornerMargin;
 bar_outer_offset = corner_magnet_center_offset - (railThickness / 2);
@@ -78,7 +81,7 @@ module palette_base() {
                     translate([x_pos, y_pos, paletteThickness - panDepth - epsilon])
                         cylinder(h = panDepth + 2 * epsilon, r = panRadius + gap, $fn = smoothness);
                     // Magnet hole
-                    translate([x_pos + magnetOffsetX, y_pos + magnetOffsetY, paletteThickness - panDepth - magnetHeight - epsilon])
+                    translate([x_pos + magnetOffsetX, y_pos + magnetOffsetY, paletteThickness - panDepth - magnetFrontWallThickness - magnetHeight - 2 * (gap + epsilon)])
                         cylinder(h = magnetHeight + 2 * (epsilon + gap), r = magnetRadius + gap, $fn = smoothness);
                     // Push hole
                     translate([x_pos + pushHoleOffsetX, y_pos + pushHoleOffsetY, -epsilon])
@@ -87,7 +90,7 @@ module palette_base() {
             }
             // Corner magnet holes
             for (pos = corner_magnet_centers) {
-                translate([pos[0], pos[1], paletteThickness - magnetHeight - epsilon])
+                translate([pos[0], pos[1], paletteThickness - magnetFrontWallThickness - magnetHeight - epsilon - 2 * gap])
                     cylinder(h = magnetHeight + 2 * (epsilon + gap), r = magnetRadius + gap, $fn = smoothness);
             }
         }
@@ -105,16 +108,16 @@ module palette_lid() {
         cube([paletteWidth, paletteLength, lidThickness], center = false);
         // Corner magnet holes
         for (pos = corner_magnet_centers) {
-            translate([pos[0], pos[1], -epsilon])
+            translate([pos[0], pos[1], -epsilon + magnetFrontWallThickness])
                 cylinder(h = magnetHeight + 2 * (epsilon + gap), r = magnetRadius + gap, $fn = smoothness);
         }
         // Female rails
         rail_z = -epsilon;
-        groove_depth = railHeight + gap + 2 * epsilon;
+        rail_depth = railHeight + gap + 2 * epsilon;
         translate([bar_outer_offset - gap, bar_start_Y - gap, rail_z])
-            cube([railThickness + 2*gap, bar_length_Y + 2*gap, groove_depth]); // Left rail
+            cube([railThickness + 2*gap, bar_length_Y + 2*gap, rail_depth]); // Left rail
         translate([paletteWidth - bar_outer_offset - railThickness - gap, bar_start_Y - gap, rail_z])
-            cube([railThickness + 2*gap, bar_length_Y + 2*gap, groove_depth]); // Right rail
+            cube([railThickness + 2*gap, bar_length_Y + 2*gap, rail_depth]); // Right rail
     }
 }
 
