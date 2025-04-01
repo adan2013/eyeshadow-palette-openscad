@@ -1,9 +1,9 @@
 // Eyeshadow Palette Generator V20
 
 /*[Pans]*/
-// First diameter
+// Number of pans in a row
 dimensionA = 3; // [1:1:6]
-// second diameter
+// Number of pans in a column
 dimensionB = 2; // [1:1:6]
 // pan diameter in mm
 panDiameter = 26; // [20:1:40]
@@ -27,7 +27,7 @@ panRadius = panDiameter / 2;
 magnetRadius = magnetDiameter / 2;
 pushHoleRadius = pushHoleDiameter / 2;
 
-magnetHoleClearance = 1;
+magnetWallThickness = 1;
 railHeight = 1;
 railThickness = 1;
 railMagnetOffset = 6 + magnetRadius;
@@ -38,10 +38,10 @@ magnetOffsetY = 0;
 pushHoleOffsetX = panRadius / -2;
 pushHoleOffsetY = 0;
 
-lidThickness = magnetHeight + magnetHoleClearance;
-paletteThickness = panDepth + magnetHeight + magnetHoleClearance;
-paletteWidth = (columnCount * panDiameter) + (max(0, columnCount - 1) * panSpacing) + (2 * outerMargin);
-paletteLength = (rowCount * panDiameter) + (max(0, rowCount - 1) * panSpacing) + (2 * outerMargin);
+lidThickness = magnetHeight + magnetWallThickness;
+paletteThickness = panDepth + magnetHeight + magnetWallThickness;
+paletteWidth = (columnCount * panDiameter) + ((columnCount - 1) * panSpacing) + (2 * outerMargin);
+paletteLength = (rowCount * panDiameter) + ((rowCount - 1) * panSpacing) + (2 * outerMargin);
 
 epsilon = 0.01;
 gap = 0.2;
@@ -55,6 +55,13 @@ bar_inner_offset = bar_outer_offset + railThickness;
 bar_start_Y = corner_magnet_center_offset + railMagnetOffset;
 bar_end_Y   = paletteLength - corner_magnet_center_offset - railMagnetOffset;
 bar_length_Y = bar_end_Y - bar_start_Y;
+
+corner_magnet_centers = [
+    [corner_magnet_center_offset, corner_magnet_center_offset], // BL
+    [paletteWidth - corner_magnet_center_offset, corner_magnet_center_offset], // BR
+    [corner_magnet_center_offset, paletteLength - corner_magnet_center_offset], // TL
+    [paletteWidth - corner_magnet_center_offset, paletteLength - corner_magnet_center_offset] // TR
+];
 
 module palette_base() {
     union() {
@@ -77,12 +84,6 @@ module palette_base() {
                 }
             }
             // Corner magnet holes
-            corner_magnet_centers = [
-                [corner_magnet_center_offset, corner_magnet_center_offset], // BL
-                [paletteWidth - corner_magnet_center_offset, corner_magnet_center_offset], // BR
-                [corner_magnet_center_offset, paletteLength - corner_magnet_center_offset], // TL
-                [paletteWidth - corner_magnet_center_offset, paletteLength - corner_magnet_center_offset] // TR
-            ];
             for (pos = corner_magnet_centers) {
                 translate([pos[0], pos[1], paletteThickness - magnetHeight - epsilon])
                     cylinder(h = magnetHeight + 2 * epsilon, r = magnetRadius, $fn = smoothness);
@@ -101,12 +102,6 @@ module palette_lid() {
     difference() {
         cube([paletteWidth, paletteLength, lidThickness], center = false);
         // Corner magnet holes
-        corner_magnet_centers = [
-            [corner_magnet_center_offset, corner_magnet_center_offset], // BL
-            [paletteWidth - corner_magnet_center_offset, corner_magnet_center_offset], // BR
-            [corner_magnet_center_offset, paletteLength - corner_magnet_center_offset], // TL
-            [paletteWidth - corner_magnet_center_offset, paletteLength - corner_magnet_center_offset] // TR
-        ];
         for (pos = corner_magnet_centers) {
             translate([pos[0], pos[1], -epsilon])
                 cylinder(h = magnetHeight + 2 * epsilon, r = magnetRadius, $fn = smoothness);
