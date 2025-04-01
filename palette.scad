@@ -46,7 +46,7 @@ paletteLength = (rowCount * panDiameter) + ((rowCount - 1) * panSpacing) + (2 * 
 epsilon = 0.01;
 gap = 0.2;
 lidPreviewGap = 5;
-smoothness = 50;
+smoothness = 100;
 
 corner_magnet_center_offset = magnetRadius + cornerMargin;
 bar_outer_offset = corner_magnet_center_offset - (railThickness / 2);
@@ -74,10 +74,10 @@ module palette_base() {
                     y_pos = outerMargin + panRadius + r * (panDiameter + panSpacing);
                     // Pan hole
                     translate([x_pos, y_pos, paletteThickness - panDepth - epsilon])
-                        cylinder(h = panDepth + 2 * epsilon, r = panRadius, $fn = smoothness);
+                        cylinder(h = panDepth + 2 * epsilon, r = panRadius + gap, $fn = smoothness);
                     // Magnet hole
                     translate([x_pos + magnetOffsetX, y_pos + magnetOffsetY, paletteThickness - panDepth - magnetHeight - epsilon])
-                        cylinder(h = magnetHeight + 2 * epsilon, r = magnetRadius, $fn = smoothness);
+                        cylinder(h = magnetHeight + 2 * (epsilon + gap), r = magnetRadius + gap, $fn = smoothness);
                     // Push hole
                     translate([x_pos + pushHoleOffsetX, y_pos + pushHoleOffsetY, -epsilon])
                         cylinder(h = paletteThickness + 2 * epsilon, r = pushHoleRadius, $fn = smoothness);
@@ -86,7 +86,7 @@ module palette_base() {
             // Corner magnet holes
             for (pos = corner_magnet_centers) {
                 translate([pos[0], pos[1], paletteThickness - magnetHeight - epsilon])
-                    cylinder(h = magnetHeight + 2 * epsilon, r = magnetRadius, $fn = smoothness);
+                    cylinder(h = magnetHeight + 2 * (epsilon + gap), r = magnetRadius + gap, $fn = smoothness);
             }
         }
         // Male rails
@@ -104,7 +104,7 @@ module palette_lid() {
         // Corner magnet holes
         for (pos = corner_magnet_centers) {
             translate([pos[0], pos[1], -epsilon])
-                cylinder(h = magnetHeight + 2 * epsilon, r = magnetRadius, $fn = smoothness);
+                cylinder(h = magnetHeight + 2 * (epsilon + gap), r = magnetRadius + gap, $fn = smoothness);
         }
         // Female rails
         rail_z = -epsilon;
