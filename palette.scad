@@ -8,11 +8,9 @@ dimensionB = 2; // [1:1:6]
 // pan diameter in mm
 panDiameter = 26; // [20:1:40]
 // depth of the pans in mm
-panDepth = 3; // [3:1:6]
+panDepth = 5; // [3:1:9]
 
 /*[Magnets and push holes]*/
-// use pause feature to insert magnets during printing
-hiddenMagnets = true;
 magnetDiameter = 6; // [5:1:10]
 magnetHeight = 2; // [1:1:4]
 pushHoleDiameter = 3; // [3:1:6]
@@ -22,6 +20,14 @@ cornerMargin = 3; // [2:1:10]
 panSpacing = 6; // [3:1:10]
 // extra milimeters added to the base palette thickness
 extraPaletteThickness = 2; // [0:1:10]
+
+/*[Features]*/
+// use pause feature to insert magnets during printing
+hiddenMagnets = true;
+// remove lid from render
+hideLid = false;
+// remove base from render
+hideBase = false;
 
 /*[Hidden]*/
 rowCount = min(dimensionA, dimensionB);
@@ -42,6 +48,9 @@ magnetOffsetX = panRadius / 2;
 magnetOffsetY = 0;
 pushHoleOffsetX = panRadius / -2;
 pushHoleOffsetY = 0;
+sphereOffsetY = 15;
+sphereOffsetZ = 8;
+sphereRadius = 20;
 
 epsilon = 0.01;
 gap = 0.2;
@@ -93,6 +102,11 @@ module palette_base() {
                 translate([pos[0], pos[1], paletteThickness - magnetFrontWallThickness - magnetHeight - epsilon - 2 * gap])
                     cylinder(h = magnetHeight + 2 * (epsilon + gap), r = magnetRadius + gap, $fn = smoothness);
             }
+            // opening handles
+            translate([paletteWidth / 2, -sphereOffsetY, paletteThickness + sphereOffsetZ])
+                sphere(sphereRadius, $fn=smoothness);
+            translate([paletteWidth / 2, paletteLength + sphereOffsetY, paletteThickness + sphereOffsetZ])
+                sphere(sphereRadius, $fn=smoothness);
         }
         // Male rails
         rail_z = paletteThickness;
@@ -121,10 +135,14 @@ module palette_lid() {
     }
 }
 
-palette_base();
+if (!hideBase) {
+    palette_base();
+}
 
-translate([0, -lidPreviewGap, lidThickness]) {
-    rotate([180, 0, 0]) {
-        palette_lid();
+if (!hideLid) {
+    translate([0, -lidPreviewGap, lidThickness]) {
+        rotate([180, 0, 0]) {
+            palette_lid();
+        }
     }
 }
