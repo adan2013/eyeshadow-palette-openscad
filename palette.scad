@@ -81,16 +81,19 @@ cornerMagnetCenters = [
 
 module roundedCube(w, l, h, r, center = false) {
     r = max(0, min(r, w/2, l/2));
-    innerW = w - 2 * r;
-    innerH = l - 2 * r;
     translateVector = center ? [-w/2, -l/2, -h/2] : [0, 0, 0];
 
     translate(translateVector) {
         linear_extrude(height = h) {
-            minkowski() {
-                 translate([r, r])
-                    square([innerW, innerH], center=false);
-                circle(r = r, $fn = smoothness);
+            hull() {
+                translate([r, r])
+                    circle(r = r, $fn = smoothness);
+                translate([w - r, r])
+                    circle(r = r, $fn = smoothness);
+                translate([r, l - r])
+                    circle(r = r, $fn = smoothness);
+                translate([w - r, l - r])
+                    circle(r = r, $fn = smoothness);
             }
         }
     }
@@ -99,10 +102,11 @@ module roundedCube(w, l, h, r, center = false) {
 module generateFemaleRails() {
     railZ = -epsilon;
     railDepth = railHeight + gap + 2 * epsilon;
+    railWidth = railThickness + 2 * gap;
     translate([barOuterOffset - gap, barStartY - gap, railZ])
-        cube([railThickness + 2*gap, barLengthY + 2*gap, railDepth]); // Left rail
+        roundedCube(railWidth, barLengthY + 2*gap, railDepth, railWidth / 2);
     translate([paletteWidth - barOuterOffset - railThickness - gap, barStartY - gap, railZ])
-        cube([railThickness + 2*gap, barLengthY + 2*gap, railDepth]); // Right rail
+        roundedCube(railWidth, barLengthY + 2*gap, railDepth, railWidth / 2);
 }
 
 module generateBase() {
@@ -141,9 +145,9 @@ module generateBase() {
         // Male rails
         railZ = paletteThickness;
         translate([barOuterOffset, barStartY, railZ])
-            cube([railThickness, barLengthY, railHeight]); // Left rail
+            roundedCube(railThickness, barLengthY, railHeight, railThickness/2);
         translate([paletteWidth - barOuterOffset - railThickness, barStartY, railZ])
-            cube([railThickness, barLengthY, railHeight]); // Right rail
+            roundedCube(railThickness, barLengthY, railHeight, railThickness/2);
     }
 }
 
