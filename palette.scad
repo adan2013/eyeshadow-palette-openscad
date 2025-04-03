@@ -6,7 +6,7 @@ dimensionA = 3; // [1:1:6]
 // Number of pans in a row
 dimensionB = 2; // [1:1:6]
 // pan diameter in mm
-panDiameter = 26; // [20:1:40]
+panDiameter = 27; // [20:1:40]
 // depth of the pans in mm
 panDepth = 5; // [3:1:9]
 
