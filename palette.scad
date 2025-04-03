@@ -16,14 +16,16 @@ magnetHeight = 2; // [1:1:4]
 pushHoleDiameter = 3; // [3:1:6]
 
 /*[Spacing]*/
+// outer margin behind corner magnets in mm
 cornerMargin = 3; // [2:1:10]
+// distance between pans in mm
 panSpacing = 6; // [3:1:10]
-// extra milimeters added to the base palette thickness
-extraPaletteThickness = 2; // [0:1:10]
 
 /*[Features]*/
 // use pause feature to insert magnets during printing
 hiddenMagnets = true;
+// enable bottom rails for palette stacking
+stackable = true;
 // remove lid from render
 hideLid = false;
 // remove base from render
@@ -37,7 +39,7 @@ panRadius = panDiameter / 2;
 magnetRadius = magnetDiameter / 2;
 pushHoleRadius = pushHoleDiameter / 2;
 
-magnetBackWallThickness = 1;
+magnetBackWallThickness = 3;
 magnetFrontWallThickness = hiddenMagnets ? 1 : 0;
 railHeight = 1;
 railThickness = 2;
@@ -58,47 +60,56 @@ lidPreviewGap = 5;
 smoothness = 100;
 
 lidThickness = magnetBackWallThickness + magnetHeight + magnetFrontWallThickness + 2 * gap;
-paletteThickness = panDepth + magnetFrontWallThickness + magnetHeight + magnetBackWallThickness + extraPaletteThickness + 2 * gap;
+paletteThickness = panDepth + magnetFrontWallThickness + magnetHeight + magnetBackWallThickness + 2 * gap;
 paletteWidth = (columnCount * panDiameter) + ((columnCount - 1) * panSpacing) + (2 * outerMargin);
 paletteLength = (rowCount * panDiameter) + ((rowCount - 1) * panSpacing) + (2 * outerMargin);
 
-corner_magnet_center_offset = magnetRadius + cornerMargin;
-bar_outer_offset = corner_magnet_center_offset - (railThickness / 2);
-bar_inner_offset = bar_outer_offset + railThickness;
+cornerMagnetCenterOffset = magnetRadius + cornerMargin;
+barOuterOffset = cornerMagnetCenterOffset - (railThickness / 2);
+barInnerOffset = barOuterOffset + railThickness;
 
-bar_start_Y = corner_magnet_center_offset + railMagnetOffset;
-bar_end_Y   = paletteLength - corner_magnet_center_offset - railMagnetOffset;
-bar_length_Y = bar_end_Y - bar_start_Y;
+barStartY = cornerMagnetCenterOffset + railMagnetOffset;
+barEndY   = paletteLength - cornerMagnetCenterOffset - railMagnetOffset;
+barLengthY = barEndY - barStartY;
 
-corner_magnet_centers = [
-    [corner_magnet_center_offset, corner_magnet_center_offset], // BL
-    [paletteWidth - corner_magnet_center_offset, corner_magnet_center_offset], // BR
-    [corner_magnet_center_offset, paletteLength - corner_magnet_center_offset], // TL
-    [paletteWidth - corner_magnet_center_offset, paletteLength - corner_magnet_center_offset] // TR
+cornerMagnetCenters = [
+    [cornerMagnetCenterOffset, cornerMagnetCenterOffset], // BL
+    [paletteWidth - cornerMagnetCenterOffset, cornerMagnetCenterOffset], // BR
+    [cornerMagnetCenterOffset, paletteLength - cornerMagnetCenterOffset], // TL
+    [paletteWidth - cornerMagnetCenterOffset, paletteLength - cornerMagnetCenterOffset] // TR
 ];
 
-module palette_base() {
+module generateFemaleRails() {
+    railZ = -epsilon;
+    railDepth = railHeight + gap + 2 * epsilon;
+    translate([barOuterOffset - gap, barStartY - gap, railZ])
+        cube([railThickness + 2*gap, barLengthY + 2*gap, railDepth]); // Left rail
+    translate([paletteWidth - barOuterOffset - railThickness - gap, barStartY - gap, railZ])
+        cube([railThickness + 2*gap, barLengthY + 2*gap, railDepth]); // Right rail
+}
+
+module generateBase() {
     union() {
         difference() {
             cube([paletteWidth, paletteLength, paletteThickness]);
             // Pans
             for (r = [0 : rowCount - 1]) {
                 for (c = [0 : columnCount - 1]) {
-                    x_pos = outerMargin + panRadius + c * (panDiameter + panSpacing);
-                    y_pos = outerMargin + panRadius + r * (panDiameter + panSpacing);
+                    xPos = outerMargin + panRadius + c * (panDiameter + panSpacing);
+                    yPos = outerMargin + panRadius + r * (panDiameter + panSpacing);
                     // Pan hole
-                    translate([x_pos, y_pos, paletteThickness - panDepth - epsilon])
+                    translate([xPos, yPos, paletteThickness - panDepth - epsilon])
                         cylinder(h = panDepth + 2 * epsilon, r = panRadius + gap, $fn = smoothness);
                     // Magnet hole
-                    translate([x_pos + magnetOffsetX, y_pos + magnetOffsetY, paletteThickness - panDepth - magnetFrontWallThickness - magnetHeight - 2 * (gap + epsilon)])
+                    translate([xPos + magnetOffsetX, yPos + magnetOffsetY, paletteThickness - panDepth - magnetFrontWallThickness - magnetHeight - 2 * (gap + epsilon)])
                         cylinder(h = magnetHeight + 2 * (epsilon + gap), r = magnetRadius + gap, $fn = smoothness);
                     // Push hole
-                    translate([x_pos + pushHoleOffsetX, y_pos + pushHoleOffsetY, -epsilon])
+                    translate([xPos + pushHoleOffsetX, yPos + pushHoleOffsetY, -epsilon])
                         cylinder(h = paletteThickness + 2 * epsilon, r = pushHoleRadius, $fn = smoothness);
                 }
             }
             // Corner magnet holes
-            for (pos = corner_magnet_centers) {
+            for (pos = cornerMagnetCenters) {
                 translate([pos[0], pos[1], paletteThickness - magnetFrontWallThickness - magnetHeight - epsilon - 2 * gap])
                     cylinder(h = magnetHeight + 2 * (epsilon + gap), r = magnetRadius + gap, $fn = smoothness);
             }
@@ -107,42 +118,39 @@ module palette_base() {
                 sphere(sphereRadius, $fn=smoothness);
             translate([paletteWidth / 2, paletteLength + sphereOffsetY, paletteThickness + sphereOffsetZ])
                 sphere(sphereRadius, $fn=smoothness);
+            // Female stacking bottom rails
+            if (stackable) generateFemaleRails();
         }
         // Male rails
-        rail_z = paletteThickness;
-        translate([bar_outer_offset, bar_start_Y, rail_z])
-            cube([railThickness, bar_length_Y, railHeight]); // Left rail
-        translate([paletteWidth - bar_outer_offset - railThickness, bar_start_Y, rail_z])
-            cube([railThickness, bar_length_Y, railHeight]); // Right rail
+        railZ = paletteThickness;
+        translate([barOuterOffset, barStartY, railZ])
+            cube([railThickness, barLengthY, railHeight]); // Left rail
+        translate([paletteWidth - barOuterOffset - railThickness, barStartY, railZ])
+            cube([railThickness, barLengthY, railHeight]); // Right rail
     }
 }
 
-module palette_lid() {
+module generateLid() {
     difference() {
         cube([paletteWidth, paletteLength, lidThickness], center = false);
         // Corner magnet holes
-        for (pos = corner_magnet_centers) {
+        for (pos = cornerMagnetCenters) {
             translate([pos[0], pos[1], -epsilon + magnetFrontWallThickness])
                 cylinder(h = magnetHeight + 2 * (epsilon + gap), r = magnetRadius + gap, $fn = smoothness);
         }
         // Female rails
-        rail_z = -epsilon;
-        rail_depth = railHeight + gap + 2 * epsilon;
-        translate([bar_outer_offset - gap, bar_start_Y - gap, rail_z])
-            cube([railThickness + 2*gap, bar_length_Y + 2*gap, rail_depth]); // Left rail
-        translate([paletteWidth - bar_outer_offset - railThickness - gap, bar_start_Y - gap, rail_z])
-            cube([railThickness + 2*gap, bar_length_Y + 2*gap, rail_depth]); // Right rail
+        generateFemaleRails();
     }
 }
 
 if (!hideBase) {
-    palette_base();
+    generateBase();
 }
 
 if (!hideLid) {
-    translate([0, -lidPreviewGap, lidThickness]) {
+    translate([0, hideBase ? paletteLength : -lidPreviewGap, lidThickness]) {
         rotate([180, 0, 0]) {
-            palette_lid();
+            generateLid();
         }
     }
 }
