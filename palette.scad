@@ -1,5 +1,17 @@
 // Eyeshadow Palette Generator V20
 
+/*[Features]*/
+// add text label on lid
+labelEnabled = false;
+// use pause feature to insert magnets during printing
+hiddenMagnets = false;
+// enable bottom rails for palette stacking
+stackable = false;
+// remove lid from render
+hideLid = false;
+// remove base from render
+hideBase = false;
+
 /*[Pans]*/
 // Number of pans in a column
 dimensionA = 3; // [1:1:6]
@@ -21,15 +33,10 @@ cornerMargin = 3; // [2:1:10]
 // distance between pans in mm
 panSpacing = 6; // [3:1:10]
 
-/*[Features]*/
-// use pause feature to insert magnets during printing
-hiddenMagnets = true;
-// enable bottom rails for palette stacking
-stackable = true;
-// remove lid from render
-hideLid = false;
-// remove base from render
-hideBase = false;
+/*[Label]*/
+labelText = "My label";
+labelSize = 8; // [6:1:12]
+labelFont = "Arial";
 
 /*[Hidden]*/
 rowCount = min(dimensionA, dimensionB);
@@ -57,6 +64,7 @@ sphereRadius = 23.5;
 epsilon = 0.01;
 gap = 0.2;
 lidPreviewGap = 5;
+labelExtrude = 0.001;
 smoothness = 100;
 
 lidThickness = magnetBackWallThickness + magnetHeight + magnetFrontWallThickness + 2 * gap;
@@ -161,6 +169,14 @@ module generateLid() {
         }
         // Female rails
         generateFemaleRails();
+        // Label
+        if (labelEnabled) {
+            translate([paletteWidth / 2, paletteLength / 2, lidThickness - labelExtrude]) {
+                linear_extrude(height = labelExtrude) {
+                    text(labelText, size = labelSize, font = labelFont, halign = "center", valign = "center");
+                }
+            }
+        }
     }
 }
 
