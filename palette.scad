@@ -39,7 +39,7 @@ panRadius = panDiameter / 2;
 magnetRadius = magnetDiameter / 2;
 pushHoleRadius = pushHoleDiameter / 2;
 
-magnetBackWallThickness = 3;
+magnetBackWallThickness = 2;
 magnetFrontWallThickness = hiddenMagnets ? 1 : 0;
 railHeight = 1;
 railThickness = 2;
@@ -50,9 +50,9 @@ magnetOffsetX = panRadius / 2;
 magnetOffsetY = 0;
 pushHoleOffsetX = panRadius / -2;
 pushHoleOffsetY = 0;
-sphereOffsetY = 15;
-sphereOffsetZ = 8;
-sphereRadius = 20;
+sphereOffsetY = 17;
+sphereOffsetZ = 11;
+sphereRadius = 23.5;
 
 epsilon = 0.01;
 gap = 0.2;
@@ -79,6 +79,23 @@ cornerMagnetCenters = [
     [paletteWidth - cornerMagnetCenterOffset, paletteLength - cornerMagnetCenterOffset] // TR
 ];
 
+module roundedCube(w, l, h, r, center = false) {
+    r = max(0, min(r, w/2, l/2));
+    innerW = w - 2 * r;
+    innerH = l - 2 * r;
+    translateVector = center ? [-w/2, -l/2, -h/2] : [0, 0, 0];
+
+    translate(translateVector) {
+        linear_extrude(height = h) {
+            minkowski() {
+                 translate([r, r])
+                    square([innerW, innerH], center=false);
+                circle(r = r, $fn = smoothness);
+            }
+        }
+    }
+}
+
 module generateFemaleRails() {
     railZ = -epsilon;
     railDepth = railHeight + gap + 2 * epsilon;
@@ -91,7 +108,7 @@ module generateFemaleRails() {
 module generateBase() {
     union() {
         difference() {
-            cube([paletteWidth, paletteLength, paletteThickness]);
+            roundedCube(paletteWidth, paletteLength, paletteThickness, magnetRadius + cornerMargin);
             // Pans
             for (r = [0 : rowCount - 1]) {
                 for (c = [0 : columnCount - 1]) {
@@ -132,7 +149,7 @@ module generateBase() {
 
 module generateLid() {
     difference() {
-        cube([paletteWidth, paletteLength, lidThickness], center = false);
+        roundedCube(paletteWidth, paletteLength, lidThickness, magnetRadius + cornerMargin);
         // Corner magnet holes
         for (pos = cornerMagnetCenters) {
             translate([pos[0], pos[1], -epsilon + magnetFrontWallThickness])
