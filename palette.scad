@@ -68,8 +68,8 @@ lidPreviewGap = 5;
 labelExtrude = 0.001;
 smoothness = 100;
 
-lidThickness = magnetBackWallThickness + magnetHeight + magnetFrontWallThickness + 2 * gap;
-paletteThickness = panDepth + magnetFrontWallThickness + magnetHeight + magnetBackWallThickness + 2 * gap;
+lidThickness = magnetBackWallThickness + magnetHeight + magnetFrontWallThickness + gap;
+paletteThickness = panDepth + magnetFrontWallThickness + magnetHeight + magnetBackWallThickness + gap;
 paletteWidth = (columnCount * panDiameter) + ((columnCount - 1) * panSpacing) + (2 * outerMargin);
 paletteLength = (rowCount * panDiameter) + ((rowCount - 1) * panSpacing) + (2 * outerMargin);
 
