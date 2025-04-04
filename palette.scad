@@ -18,7 +18,7 @@ dimensionA = 3; // [1:1:6]
 // Number of pans in a row
 dimensionB = 2; // [1:1:6]
 // pan diameter in mm
-panDiameter = 27; // [20:1:40]
+panDiameter = 26; // [20:1:40]
 // depth of the pans in mm
 panDepth = 5; // [3:1:9]
 
@@ -46,7 +46,7 @@ panRadius = panDiameter / 2;
 magnetRadius = magnetDiameter / 2;
 pushHoleRadius = pushHoleDiameter / 2;
 
-magnetBackWallThickness = 2;
+magnetBackWallThickness = 1;
 magnetFrontWallThickness = hiddenMagnets ? 1 : 0;
 railHeight = 1;
 railThickness = 2;
@@ -63,6 +63,7 @@ sphereRadius = 23.5;
 
 epsilon = 0.01;
 gap = 0.2;
+panTolRadius = 0.5;
 lidPreviewGap = 5;
 labelExtrude = 0.001;
 smoothness = 100;
@@ -109,7 +110,7 @@ module roundedCube(w, l, h, r, center = false) {
 
 module generateFemaleRails() {
     railZ = -epsilon;
-    railDepth = railHeight + gap + 2 * epsilon;
+    railDepth = railHeight + gap + epsilon;
     railWidth = railThickness + 2 * gap;
     translate([barOuterOffset - gap, barStartY - gap, railZ])
         roundedCube(railWidth, barLengthY + 2*gap, railDepth, railWidth / 2);
@@ -127,11 +128,11 @@ module generateBase() {
                     xPos = outerMargin + panRadius + c * (panDiameter + panSpacing);
                     yPos = outerMargin + panRadius + r * (panDiameter + panSpacing);
                     // Pan hole
-                    translate([xPos, yPos, paletteThickness - panDepth - epsilon])
-                        cylinder(h = panDepth + 2 * epsilon, r = panRadius + gap, $fn = smoothness);
+                    translate([xPos, yPos, paletteThickness - panDepth])
+                        cylinder(h = panDepth + epsilon, r = panRadius + panTolRadius, $fn = smoothness);
                     // Magnet hole
-                    translate([xPos + magnetOffsetX, yPos + magnetOffsetY, paletteThickness - panDepth - magnetFrontWallThickness - magnetHeight - 2 * (gap + epsilon)])
-                        cylinder(h = magnetHeight + 2 * (epsilon + gap), r = magnetRadius + gap, $fn = smoothness);
+                    translate([xPos + magnetOffsetX, yPos + magnetOffsetY, paletteThickness - panDepth - magnetFrontWallThickness - magnetHeight - gap])
+                        cylinder(h = magnetHeight + gap + (hiddenMagnets ? 0 : epsilon), r = magnetRadius + gap/2, $fn = smoothness);
                     // Push hole
                     translate([xPos + pushHoleOffsetX, yPos + pushHoleOffsetY, -epsilon])
                         cylinder(h = paletteThickness + 2 * epsilon, r = pushHoleRadius, $fn = smoothness);
@@ -139,8 +140,8 @@ module generateBase() {
             }
             // Corner magnet holes
             for (pos = cornerMagnetCenters) {
-                translate([pos[0], pos[1], paletteThickness - magnetFrontWallThickness - magnetHeight - epsilon - 2 * gap])
-                    cylinder(h = magnetHeight + 2 * (epsilon + gap), r = magnetRadius + gap, $fn = smoothness);
+                translate([pos[0], pos[1], paletteThickness - magnetFrontWallThickness - magnetHeight -  gap])
+                    cylinder(h = magnetHeight + gap + (hiddenMagnets ? 0 : epsilon), r = magnetRadius + gap/2, $fn = smoothness);
             }
             // opening handles
             translate([paletteWidth / 2, -sphereOffsetY, paletteThickness + sphereOffsetZ])
@@ -164,15 +165,15 @@ module generateLid() {
         roundedCube(paletteWidth, paletteLength, lidThickness, magnetRadius + cornerMargin);
         // Corner magnet holes
         for (pos = cornerMagnetCenters) {
-            translate([pos[0], pos[1], -epsilon + magnetFrontWallThickness])
-                cylinder(h = magnetHeight + 2 * (epsilon + gap), r = magnetRadius + gap, $fn = smoothness);
+            translate([pos[0], pos[1], hiddenMagnets ? magnetFrontWallThickness : -epsilon])
+                cylinder(h = magnetHeight + gap + (hiddenMagnets ? 0 : epsilon), r = magnetRadius + gap/2, $fn = smoothness);
         }
         // Female rails
         generateFemaleRails();
         // Label
         if (labelEnabled) {
             translate([paletteWidth / 2, paletteLength / 2, lidThickness - labelExtrude]) {
-                linear_extrude(height = labelExtrude) {
+                linear_extrude(height = labelExtrude + epsilon) {
                     text(labelText, size = labelSize, font = labelFont, halign = "center", valign = "center");
                 }
             }
