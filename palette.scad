@@ -177,9 +177,11 @@ module generateLid() {
         generateFemaleRails();
         // Label
         if (labelEnabled) {
-            translate([paletteWidth / 2, paletteLength / 2, lidThickness - labelExtrude]) {
-                linear_extrude(height = labelExtrude + epsilon) {
-                    text(labelText, size = labelSize, font = labelFont, halign = "center", valign = "center");
+            color("#000") {
+                translate([paletteWidth / 2, paletteLength / 2, lidThickness - labelExtrude]) {
+                    linear_extrude(height = labelExtrude + epsilon) {
+                        text(labelText, size = labelSize, font = labelFont, halign = "center", valign = "center");
+                    }
                 }
             }
         }
