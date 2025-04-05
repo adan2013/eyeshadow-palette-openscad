@@ -182,14 +182,18 @@ module generateLid() {
     }
 }
 
-if (!hideBase) {
-    generateBase();
-}
+translate([paletteWidth / -2, 0, 0]) {
+    if (!hideBase) {
+        translate([0, hideLid ? paletteLength / -2 : 0, 0]) {
+            generateBase();
+        }
+    }
 
-if (!hideLid) {
-    translate([0, hideBase ? paletteLength : -lidPreviewGap, lidThickness]) {
-        rotate([180, 0, 0]) {
-            generateLid();
+    if (!hideLid) {
+        translate([0, hideBase ? paletteLength / 2 : -lidPreviewGap, lidThickness]) {
+            rotate([180, 0, 0]) {
+                generateLid();
+            }
         }
     }
 }
