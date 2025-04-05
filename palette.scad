@@ -74,12 +74,12 @@ paletteWidth = (columnCount * panDiameter) + ((columnCount - 1) * panSpacing) + 
 paletteLength = (rowCount * panDiameter) + ((rowCount - 1) * panSpacing) + (2 * outerMargin);
 
 cornerMagnetCenterOffset = magnetRadius + cornerMargin;
-barOuterOffset = cornerMagnetCenterOffset - (railThickness / 2);
-barInnerOffset = barOuterOffset + railThickness;
+railOuterOffset = cornerMagnetCenterOffset - (railThickness / 2);
+railInnerOffset = railOuterOffset + railThickness;
 
-barStartY = cornerMagnetCenterOffset + railMagnetOffset;
-barEndY   = paletteLength - cornerMagnetCenterOffset - railMagnetOffset;
-barLengthY = barEndY - barStartY;
+railStartY = cornerMagnetCenterOffset + railMagnetOffset;
+rainEndY   = paletteLength - cornerMagnetCenterOffset - railMagnetOffset;
+railLengthY = rainEndY - railStartY;
 
 cornerMagnetCenters = [
     [cornerMagnetCenterOffset, cornerMagnetCenterOffset], // BL
@@ -112,10 +112,11 @@ module generateFemaleRails() {
     railZ = -epsilon;
     railDepth = railHeight + gap + epsilon;
     railWidth = railThickness + 2 * gap;
-    translate([barOuterOffset - gap, barStartY - gap, railZ])
-        roundedCube(railWidth, barLengthY + 2*gap, railDepth, railWidth / 2);
-    translate([paletteWidth - barOuterOffset - railThickness - gap, barStartY - gap, railZ])
-        roundedCube(railWidth, barLengthY + 2*gap, railDepth, railWidth / 2);
+    railLength = railLengthY + 2 * gap;
+    translate([railOuterOffset - gap, railStartY - gap, railZ])
+        roundedCube(railWidth, railLength, railDepth, railWidth / 2);
+    translate([paletteWidth - railOuterOffset - railThickness - gap, railStartY - gap, railZ])
+        roundedCube(railWidth, railLength, railDepth, railWidth / 2);
 }
 
 module generateBase() {
@@ -153,10 +154,10 @@ module generateBase() {
         }
         // Male rails
         railZ = paletteThickness;
-        translate([barOuterOffset, barStartY, railZ])
-            roundedCube(railThickness, barLengthY, railHeight, railThickness/2);
-        translate([paletteWidth - barOuterOffset - railThickness, barStartY, railZ])
-            roundedCube(railThickness, barLengthY, railHeight, railThickness/2);
+        translate([railOuterOffset, railStartY, railZ])
+            roundedCube(railThickness, railLengthY, railHeight, railThickness/2);
+        translate([paletteWidth - railOuterOffset - railThickness, railStartY, railZ])
+            roundedCube(railThickness, railLengthY, railHeight, railThickness/2);
     }
 }
 
