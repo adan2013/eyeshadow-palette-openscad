@@ -1,12 +1,12 @@
 // Eyeshadow Palette Generator V20
 
 /*[Features]*/
-// add text label on lid
-labelEnabled = false;
 // use pause feature to insert magnets during printing
 hiddenMagnets = false;
 // enable bottom rails for palette stacking
 stackable = false;
+// add push hole for each pan
+addPushHole = true;
 // remove lid from render
 hideLid = false;
 // remove base from render
@@ -34,6 +34,8 @@ cornerMargin = 3; // [2:1:10]
 panSpacing = 6; // [3:1:10]
 
 /*[Label]*/
+// add text label on lid
+labelEnabled = false;
 labelText = "My label";
 labelSize = 8; // [6:1:12]
 labelFont = "Arial";
@@ -53,7 +55,7 @@ railThickness = 2;
 railMagnetOffset = 6 + magnetRadius;
 
 outerMargin = magnetDiameter + cornerMargin;
-magnetOffsetX = panRadius / 2;
+magnetOffsetX = addPushHole ? panRadius / 2 : 0;
 magnetOffsetY = 0;
 pushHoleOffsetX = panRadius / -2;
 pushHoleOffsetY = 0;
@@ -135,8 +137,10 @@ module generateBase() {
                     translate([xPos + magnetOffsetX, yPos + magnetOffsetY, paletteThickness - panDepth - magnetFrontWallThickness - magnetHeight - gap])
                         cylinder(h = magnetHeight + gap + (hiddenMagnets ? 0 : epsilon), r = magnetRadius + gap/2, $fn = smoothness);
                     // Push hole
-                    translate([xPos + pushHoleOffsetX, yPos + pushHoleOffsetY, -epsilon])
-                        cylinder(h = paletteThickness + 2 * epsilon, r = pushHoleRadius, $fn = smoothness);
+                    if (addPushHole) {
+                        translate([xPos + pushHoleOffsetX, yPos + pushHoleOffsetY, -epsilon])
+                            cylinder(h = paletteThickness + 2 * epsilon, r = pushHoleRadius, $fn = smoothness);
+                    }
                 }
             }
             // Corner magnet holes
