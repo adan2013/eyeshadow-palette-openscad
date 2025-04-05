@@ -1,4 +1,4 @@
-// Eyeshadow Palette Generator V20
+// Eyeshadow Palette Generator V27
 
 /*[Features]*/
 // use pause feature to insert magnets during printing
@@ -28,16 +28,17 @@ magnetHeight = 2; // [1:1:4]
 pushHoleDiameter = 3; // [3:1:6]
 
 /*[Spacing]*/
-// outer margin behind corner magnets in mm
+// outer margin of the whole palette in mm
 cornerMargin = 3; // [2:1:10]
 // distance between pans in mm
 panSpacing = 6; // [3:1:10]
 
 /*[Label]*/
-// add text label on lid
+// add text label to the lid
 labelEnabled = false;
 labelText = "My label";
 labelSize = 8; // [6:1:12]
+// font family name
 labelFont = "Arial";
 
 /*[Hidden]*/
@@ -76,7 +77,7 @@ paletteWidth = (columnCount * panDiameter) + ((columnCount - 1) * panSpacing) + 
 paletteLength = (rowCount * panDiameter) + ((rowCount - 1) * panSpacing) + (2 * outerMargin);
 
 cornerMagnetCenterOffset = magnetRadius + cornerMargin;
-railOuterOffset = cornerMagnetCenterOffset - (railThickness / 2);
+railOuterOffset = (cornerMargin + magnetDiameter - railThickness) / 2;
 railInnerOffset = railOuterOffset + railThickness;
 
 railStartY = cornerMagnetCenterOffset + railMagnetOffset;
