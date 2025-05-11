@@ -1,4 +1,23 @@
-// Eyeshadow Palette Generator V27
+// Eyeshadow Palette Generator v1.0
+//
+// Author: https://makerworld.com/en/@adan2013
+// Source: https://github.com/adan2013/eyeshadow-palette-openscad
+// Copyright (c) 2025 Daniel Alberski
+//
+// License: 
+// Standard Digital File License 
+//
+// This work is granted under a Standard Digital File License,
+// permitting digital files for strict non-commercial, personal
+// use only. You are prohibited from sharing, sub-licensing,
+// selling, renting, hosting, transferring, or distributing the
+// digital file, 3D printed versions, or any other derivative
+// works of this object in any digital or physical format,
+// including remixes of this object. Hosting these files on
+// other digital platforms, web stores, or cloud repositories
+// is not allowed. Unauthorized use of the objects in any form
+// that involves charging money or collecting fees is strictly
+// forbidden.
 
 /*[Features]*/
 // use pause feature to insert magnets during printing
