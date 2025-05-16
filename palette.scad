@@ -1,5 +1,5 @@
 // Magnetic Eyeshadow Palette Generator v1.0
-//
+
 // Author profile: https://makerworld.com/en/@adan2013
 // Project page: https://makerworld.com/en/models/1420749-customizable-magnetic-eyeshadow-palette
 // Source code: https://github.com/adan2013/eyeshadow-palette-openscad
@@ -53,7 +53,7 @@ labelEnabled = false;
 labelText = "My label";
 labelSize = 8; // [6:1:12]
 // font family name
-labelFont = "Arial";
+labelFont = "Afacad";
 
 /*[Hidden]*/
 rowCount = min(dimensionA, dimensionB);
