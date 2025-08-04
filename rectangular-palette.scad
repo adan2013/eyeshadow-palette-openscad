@@ -1,4 +1,4 @@
-// Magnetic Eyeshadow Palette Generator v1.0
+// Magnetic Rectangular Eyeshadow Palette Generator v1.0
 
 // Author profile: https://makerworld.com/en/@adan2013
 // Project page: https://makerworld.com/en/models/1420749-customizable-magnetic-eyeshadow-palette
@@ -31,8 +31,10 @@ hideBase = false;
 dimensionA = 3; // [1:1:6]
 // Number of pans in a row
 dimensionB = 2; // [1:1:6]
-// pan diameter in mm
-panDiameter = 26; // [20:1:50]
+// pan size in mm for x axis
+panSizeX = 26; // [20:1:60]
+// pan size in mm for y axis
+panSizeY = 48; // [20:1:60]
 // depth of the pans in mm
 panDepth = 5; // [3:1:9]
 
@@ -59,7 +61,7 @@ labelFont = "Afacad";
 rowCount = min(dimensionA, dimensionB);
 columnCount = max(dimensionA, dimensionB);
 
-panRadius = panDiameter / 2;
+panIsVertical = panSizeY > panSizeX;
 magnetRadius = magnetDiameter / 2;
 pushHoleRadius = pushHoleDiameter / 2;
 
@@ -70,10 +72,12 @@ railThickness = 2;
 railMagnetOffset = 6 + magnetRadius;
 
 outerMargin = magnetDiameter + cornerMargin;
-magnetOffsetX = addPushHole ? panRadius / 2 : 0;
-magnetOffsetY = 0;
-pushHoleOffsetX = panRadius / -2;
-pushHoleOffsetY = 0;
+
+magnetOffsetX = panIsVertical ? 0 : (addPushHole ? panSizeX / 4 : 0);
+magnetOffsetY = panIsVertical ? (addPushHole ? panSizeY / 4 : 0) : 0;
+pushHoleOffsetX = panIsVertical ? 0 : panSizeX / -4;
+pushHoleOffsetY = panIsVertical ? panSizeY / -4 : 0;
+
 sphereOffsetY = 17;
 sphereOffsetZ = 11;
 sphereRadius = 23.5;
@@ -87,8 +91,8 @@ smoothness = 100;
 
 lidThickness = magnetBackWallThickness + magnetHeight + magnetFrontWallThickness + gap;
 paletteThickness = panDepth + magnetFrontWallThickness + magnetHeight + magnetBackWallThickness + gap;
-paletteWidth = (columnCount * panDiameter) + ((columnCount - 1) * panSpacing) + (2 * outerMargin);
-paletteLength = (rowCount * panDiameter) + ((rowCount - 1) * panSpacing) + (2 * outerMargin);
+paletteWidth = (columnCount * panSizeX) + ((columnCount - 1) * panSpacing) + (2 * outerMargin);
+paletteLength = (rowCount * panSizeY) + ((rowCount - 1) * panSpacing) + (2 * outerMargin);
 
 cornerMagnetCenterOffset = magnetRadius + cornerMargin;
 railOuterOffset = (cornerMargin + magnetDiameter - railThickness) / 2;
@@ -143,11 +147,11 @@ module generateBase() {
             // Pans
             for (r = [0 : rowCount - 1]) {
                 for (c = [0 : columnCount - 1]) {
-                    xPos = outerMargin + panRadius + c * (panDiameter + panSpacing);
-                    yPos = outerMargin + panRadius + r * (panDiameter + panSpacing);
-                    // Pan hole
-                    translate([xPos, yPos, paletteThickness - panDepth])
-                        cylinder(h = panDepth + epsilon, r = panRadius + panTolRadius, $fn = smoothness);
+                    xPos = outerMargin + panSizeX/2 + c * (panSizeX + panSpacing);
+                    yPos = outerMargin + panSizeY/2 + r * (panSizeY + panSpacing);
+                    // Pan rectangle
+                    translate([xPos, yPos, paletteThickness - panDepth/2])
+                        cube([panSizeX,panSizeY,panDepth + epsilon],center=true);
                     // Magnet hole
                     translate([xPos + magnetOffsetX, yPos + magnetOffsetY, paletteThickness - panDepth - magnetFrontWallThickness - magnetHeight - gap])
                         cylinder(h = magnetHeight + gap + (hiddenMagnets ? 0 : epsilon), r = magnetRadius + gap/2, $fn = smoothness);
